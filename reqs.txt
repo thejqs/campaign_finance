@@ -3,11 +3,13 @@ MySQL-python==1.2.5
 appnope==0.1.0
 decorator==4.0.4
 gnureadline==6.3.3
+ipdb==0.8.1
 ipython==4.0.0
 ipython-genutils==0.1.0
 path.py==8.1.1
 pexpect==3.3
 pickleshare==0.5
+selenium==2.49.0
 simplegeneric==0.8.1
 traitlets==4.0.0
 wsgiref==0.1.2
