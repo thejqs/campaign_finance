@@ -74,7 +74,7 @@ class DocGetter():
     @staticmethod
     def set_type_of_search(driver, doc_elems):
         '''
-        if we can search everything at once, great. but often we can't.
+        if we can search everything at once, great. but often enough we can't.
         it doesn't matter for ultimate document collection whether
         we search by year, so this method decides for us how to proceed.
         '''
@@ -90,7 +90,7 @@ class DocGetter():
     @staticmethod
     def search_by_year(driver, doc_elems):
         '''
-        seach goes back to 2007, so we do, too.
+        search goes back to 2007, so we do, too.
         '''
         years = [
             '2007',
@@ -162,11 +162,30 @@ class DocGetter():
     @staticmethod
     def rename_file(dl_path, title):
         '''
-        we try this at a couple of points, so why repeat ourselves?
+        in which we download the generically named files one by one
         '''
-        os.rename(
-                '{1}/PublicAccessProvider.pdf'.format(dl_path),
+        try:
+            time.sleep(5)
+            os.rename(
+                '{0}/PublicAccessProvider.pdf'.format(dl_path),
                 '{0}/{1}.pdf'.format(dl_path, title))
+            print title, i
+
+        except OSError:
+            # a minority of these -- ~1-5% -- are very large files
+            # that might not be ready for a name because they needed
+            # more time to download. let's wait a bit and try again
+            try:
+                time.sleep(15)
+                os.rename(
+                    '{0}/PublicAccessProvider.pdf'.format(dl_path),
+                    '{0}/{1}.pdf'.format(dl_path, title))
+                print title, i
+            # still might not work and we should know what failed
+            # and where we are in the loop
+            except OSError:
+                no_names.append((title, document))
+                print '\n {0} did not want to name itself. check item {1} of'.format(title, i), len(library) + '\n'
 
     @staticmethod
     def collect_pdfs(driver, library):
@@ -201,25 +220,6 @@ class DocGetter():
                     driver.switch_to.window(driver.window_handles[0])
 
                     time.sleep(10)
-
-                    try:
-                        time.sleep(5)
-                        DocGetter.rename_file(dl_path, title)
-                        print title, i
-
-                    except OSError:
-                        # a minority of these are large files that might not
-                        # be ready for a name because they needed more time
-                        # to download; let's wait a bit and try again
-                        try:
-                            time.sleep(15)
-                            DocGetter.rename_file(dl_path, title)
-                            print title, i
-                        # still might not work and we should know what failed
-                        # and where we are in the loop
-                        except OSError:
-                            no_names.append((title, document))
-                            print '\n {0} did not want to name itself. check item {1} of'.format(title, i), len(library) + '\n'
 
                 # will hit this if click event fails
                 except WebDriverException as wde:
